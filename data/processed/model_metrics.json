@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-04-16T00:15:10.796071",
+  "data_summary": {
+    "training_years": "2000-2024",
+    "n_observations": 25,
+    "latest_demand": 175.44,
+    "earliest_demand": 66.49,
+    "avg_growth_rate": 4.212315939129594
+  },
+  "model_metrics": {
+    "Prophet": {
+      "model": "Prophet",
+      "mae": 9.23,
+      "rmse": 10.19,
+      "mape": 7.95,
+      "training_years": 20,
+      "growth_type": "linear",
+      "has_gdp_regressor": true
+    },
+    "ARIMA": {
+      "model": "ARIMA",
+      "order": [
+        0,
+        1,
+        1
+      ],
+      "p": 0,
+      "d": 1,
+      "q": 1,
+      "mae": 9.27,
+      "rmse": 21.87,
+      "aic": 123.75,
+      "bic": 125.64,
+      "training_years": 20
+    }
+  }
+}
