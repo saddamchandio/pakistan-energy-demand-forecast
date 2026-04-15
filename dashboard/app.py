@@ -13,7 +13,7 @@ from datetime import datetime
 
 st.set_page_config(
     page_title="Pakistan Energy Demand Forecast",
-    page_icon="⚡",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -275,43 +275,36 @@ def render_metrics_panel(hist_df, forecast_df, model_name):
 
 def render_project_info():
     """Render project information sidebar."""
-    st.sidebar.title("⚡ Pakistan Energy Forecast")
+    st.sidebar.title("Pakistan Energy Forecast")
     st.sidebar.markdown("---")
     st.sidebar.markdown("### About")
     st.sidebar.markdown("""
     This project forecasts Pakistan's electricity demand for 2025-2030 using machine learning models (Prophet and ARIMA).
     
-    **Data Sources:**
-    - Original pipeline: [karemdanish/pakistan-energy-pipeline](https://github.com/karemdanish/pakistan-energy-pipeline)
-    - Demand data: Ember API
-    - GDP features: World Bank
+    **Data Source:**
+    - Source data: [Kareem Danish](https://github.com/karemdanish/pakistan-energy-pipeline)
     """)
     
     st.sidebar.markdown("---")
     st.sidebar.markdown("### Methodology")
     st.sidebar.markdown("""
     **Models:**
-    - **Prophet**: Trend-based with GDP regressor
+    - **Prophet**: Trend-based forecasting
     - **ARIMA**: Auto-parameter selection
     - **Ensemble**: Average of both models
-    
-    **Metrics:**
-    - MAE (Mean Absolute Error)
-    - RMSE (Root Mean Square Error)
-    - MAPE (Mean Absolute Percentage Error)
     """)
     
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### Quick Links")
+    st.sidebar.markdown("### Repository")
     st.sidebar.markdown("""
-    - [GitHub Repository](https://github.com/karemdanish/pakistan-energy-pipeline)
-    - [Original Dashboard](https://pakistan-energy-pipeline-wueknqrf4en86jzaakjhuz.streamlit.app/)
+    - [My GitHub](https://github.com/saddamchandio/pakistan-energy-demand-forecast)
     """)
     
     st.sidebar.markdown("---")
     st.sidebar.markdown("### Citation")
     st.sidebar.markdown("""
-    ```
+    Kareem, D. (2024). Pakistan Renewable Energy Pipeline.
+    """)
     Kareem, D. (2024). Pakistan 
     Renewable Energy Pipeline.
     GitHub.
@@ -323,7 +316,7 @@ def main():
     """Main dashboard function."""
     render_project_info()
     
-    st.title("⚡ Pakistan Electricity Demand Forecast")
+    st.title("Pakistan Electricity Demand Forecast")
     st.markdown("### Forecasting Pakistan's Energy Needs (2025-2030)")
     
     col_info, col_date = st.columns([3, 1])
@@ -409,10 +402,19 @@ def main():
             lower_col = f'{model_choice.lower()}_lower'
             upper_col = f'{model_choice.lower()}_upper'
             
-            if forecast_col not in forecast_df.columns:
+            if model_choice == "Ensemble":
                 forecast_col = 'demand_ensemble'
                 lower_col = 'lower_ci'
                 upper_col = 'upper_ci'
+            elif forecast_col not in forecast_df.columns:
+                if model_choice == "Prophet":
+                    forecast_col = 'demand_prophet'
+                    lower_col = 'prophet_lower'
+                    upper_col = 'prophet_upper'
+                elif model_choice == "ARIMA":
+                    forecast_col = 'demand_arima'
+                    lower_col = 'arima_lower'
+                    upper_col = 'arima_upper'
             
             if forecast_col in forecast_df.columns:
                 display_df = forecast_df[['year', forecast_col, lower_col, upper_col]].copy()
