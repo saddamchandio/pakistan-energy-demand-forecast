@@ -305,11 +305,6 @@ def render_project_info():
     st.sidebar.markdown("""
     Kareem, D. (2024). Pakistan Renewable Energy Pipeline.
     """)
-    Kareem, D. (2024). Pakistan 
-    Renewable Energy Pipeline.
-    GitHub.
-    ```
-    """)
 
 
 def main():
