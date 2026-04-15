@@ -2,39 +2,87 @@
 
 Machine learning project to forecast Pakistan's electricity demand for 2025-2030 using time series analysis.
 
-**Building upon data from:** [Pakistan Renewable Energy Pipeline](https://github.com/karemdanish/pakistan-energy-pipeline) by [Kareem Danish](https://github.com/karemdanish)
+**Built by:** Saddam Hussain  
+**Repository:** https://github.com/saddamchandio/pakistan-energy-demand-forecast  
+**Source Data:** https://github.com/karemdanish/pakistan-energy-pipeline
 
 ---
 
 ## Project Overview
 
-This project forecasts Pakistan's electricity demand using two time series models:
+This project forecasts Pakistan's electricity demand for 2025-2030 using two machine learning time series models. It extends the data from Kareem Danish's Pakistan Renewable Energy Pipeline by adding forecasting capabilities.
 
-- **Prophet** (Meta) - Trend-based with GDP regressor
-- **ARIMA** - Auto-parameter selection
+### What This Project Does
 
-The models are enhanced with World Bank economic indicators (GDP, population) and provide forecasts through 2030 with 95% confidence intervals.
+1. **Loads historical data** - Electricity demand from 2000-2024
+2. **Processes data** - Creates features like lag values and growth rates
+3. **Trains models** - Uses Prophet and ARIMA algorithms
+4. **Generates forecasts** - Predicts demand for 2025-2030
+5. **Visualizes results** - Interactive dashboard
 
 ---
 
-## Data Sources
+## Data Source
 
-| Source | Data | Citation |
-|--------|------|----------|
-| Original Pipeline | Electricity demand (2000-2024) | Kareem, D. (2024) |
-| World Bank | GDP, Population | World Bank (2024) |
+| Source | Description | Link |
+|--------|-------------|------|
+| Kareem Danish | Electricity demand data (2000-2024) | [GitHub](https://github.com/karemdanish/pakistan-energy-pipeline) |
+
+**Data includes:**
+- Annual electricity demand in TWh
+- Demand per capita
+- Generation capacity (MW)
+- Solar, wind, hydro generation data
+
+---
+
+## Methodology
+
+### Models Used
+
+**1. Prophet (Meta)**
+- Decomposable time series model by Facebook/Meta
+- Captures trend and yearly seasonality
+- Provides 95% confidence intervals
+- Best for: Data with clear trends
+
+**2. ARIMA**
+- Auto-Regressive Integrated Moving Average
+- Automatic parameter selection via AIC
+- Good for: Capturing autocorrelation patterns
+
+**3. Ensemble**
+- Average of Prophet and ARIMA predictions
+- More balanced and robust forecast
+
+### How It Works
+
+```
+1. Load demand data from SQLite database
+2. Engineer features (lag values, growth rates)
+3. Train Prophet model
+4. Train ARIMA model
+5. Generate predictions for 2025-2030
+6. Calculate ensemble average
+7. Save to CSV files
+8. Display in dashboard
+```
 
 ---
 
 ## Installation
 
+### Prerequisites
+- Python 3.10+
+- Git
+
+### Setup
+
 ```bash
-git clone https://github.com/[your-username]/pakistan-energy-demand-forecast
+git clone https://github.com/saddamchandio/pakistan-energy-demand-forecast
 cd pakistan-energy-demand-forecast
 pip install -r requirements.txt
 ```
-
-**Note:** Ensure you have the original pipeline database (`db/pakistan_energy.db`) from the [Pakistan Renewable Energy Pipeline](https://github.com/karemdanish/pakistan-energy-pipeline).
 
 ---
 
@@ -46,24 +94,32 @@ pip install -r requirements.txt
 python run.py
 ```
 
-This will:
-1. Load demand data from the original database
-2. Fetch World Bank GDP/population data
-3. Train Prophet and ARIMA models
-4. Generate forecasts for 2025-2030
-5. Save results to `data/processed/`
+**What it does:**
+- Loads data from database
+- Trains Prophet model
+- Trains ARIMA model
+- Generates forecasts
+- Saves to data/processed/
 
 ### Launch Dashboard
 
 ```bash
+python -m streamlit run dashboard/app.py
+```
+
+Or simply:
+```bash
 streamlit run dashboard/app.py
 ```
 
-The dashboard provides:
-- Historical demand visualization
-- Interactive forecast charts
-- Model comparison
-- Downloadable forecasts
+Then open http://localhost:8501
+
+**Dashboard Features:**
+- Historical demand chart (2000-2024)
+- Forecast chart (2025-2030) with confidence intervals
+- Model selection (Prophet/ARIMA/Ensemble)
+- Model comparison view
+- Download forecasts as CSV
 
 ---
 
@@ -72,20 +128,31 @@ The dashboard provides:
 ### Forecast 2025-2030 (TWh)
 
 | Year | Prophet | ARIMA | Ensemble |
-|------|---------|------|---------|
-| 2025 | 183.52 | 181.94 | 182.73 |
-| 2026 | 191.87 | 190.12 | 191.00 |
-| 2027 | 200.56 | 198.45 | 199.51 |
-| 2028 | 209.62 | 206.94 | 208.28 |
-| 2029 | 219.06 | 215.60 | 217.33 |
-| 2030 | 228.90 | 224.44 | 226.67 |
+|------|---------|------|----------|
+| 2025 | 172.04 | 180.88 | 176.46 |
+| 2026 | 175.75 | 180.88 | 178.32 |
+| 2027 | 179.69 | 180.88 | 180.28 |
+| 2028 | 187.77 | 180.88 | 184.32 |
+| 2029 | 191.27 | 180.88 | 186.07 |
+| 2030 | 194.99 | 180.88 | 187.93 |
 
 ### Key Metrics
 
-- **Latest Demand (2024):** 175.44 TWh
-- **Forecast 2030:** 226.67 TWh (Ensemble)
-- **CAGR (2024-2030):** 6.44%
-- **Total Growth:** 29.2%
+| Metric | Value |
+|--------|-------|
+| Latest Demand (2024) | 175.44 TWh |
+| Forecast 2030 (Ensemble) | 187.93 TWh |
+| Projected Growth | 7.1% |
+| Compound Annual Growth Rate | 1.3% |
+
+### Model Performance
+
+| Model | MAE | RMSE | MAPE |
+|-------|-----|------|------|
+| Prophet | 9.23 | 10.19 | 7.95% |
+| ARIMA | 9.27 | 21.87 | N/A |
+
+*MAE = Mean Absolute Error, RMSE = Root Mean Square Error, MAPE = Mean Absolute Percentage Error*
 
 ---
 
@@ -94,28 +161,88 @@ The dashboard provides:
 ```
 pakistan-energy-demand-forecast/
 ├── data/
-│   ├── raw/                  # World Bank data
-│   └── processed/           # Merged data, forecasts
+│   ├── raw/                   # Raw data files
+│   └── processed/            # Processed data and forecasts
 ├── models/
-│   ├── prophet_model.py     # Prophet implementation
-│   └── arima_model.py     # ARIMA implementation
+│   ├── __init__.py
+│   ├── prophet_model.py       # Prophet implementation
+│   └── arima_model.py        # ARIMA implementation
 ├── dashboard/
-│   └── app.py            # Streamlit dashboard
-├── reports/
-│   └── research_report.md # Full research report
-├── data_loader.py        # Data from original DB
-├── world_bank_data.py  # World Bank API
-├── feature_engineering.py
-├── run.py              # Pipeline runner
-└── requirements.txt
+│   └── app.py               # Streamlit dashboard
+├── db/
+│   └── pakistan_energy.db   # SQLite database
+├── run.py                   # Pipeline runner
+├── setup_db.py              # Database setup
+├── world_bank_data.py        # World Bank API fetching
+├── feature_engineering.py     # Feature engineering
+├── data_loader.py          # Data loading from DB
+├── requirements.txt         # Dependencies
+└── README.md               # This file
 ```
 
 ---
 
-## Documentation
+## Files Explained
 
-- [Research Report](reports/research_report.md) - Detailed methodology and findings
-- [Dashboard Guide](dashboard/app.py) - Interactive visualizations
+| File | Description |
+|------|-------------|
+| `run.py` | Main pipeline - coordinates everything |
+| `data_loader.py` | Loads data from SQLite database |
+| `world_bank_data.py` | Fetches GDP/population from World Bank |
+| `feature_engineering.py` | Creates lag features and growth rates |
+| `models/prophet_model.py` | Prophet model training and forecasting |
+| `models/arima_model.py` | ARIMA model training and forecasting |
+| `dashboard/app.py` | Interactive Streamlit dashboard |
+| `db/pakistan_energy.db` | SQLite database with demand data |
+| `requirements.txt` | Python dependencies |
+
+---
+
+## Technical Details
+
+### Dependencies
+
+- pandas - Data manipulation
+- numpy - Numerical computing
+- prophet - Time series forecasting
+- statsmodels - ARIMA implementation
+- streamlit - Dashboard UI
+- plotly - Interactive charts
+- sqlalchemy - Database access
+
+### Data Processing
+
+The pipeline:
+1. Loads 25 years of demand data (2000-2024)
+2. Creates lag features (t-1, t-2, t-3)
+3. Calculates growth rates (year-over-year)
+4. Computes moving averages
+5. Trains both models
+6. Generates 6-year forecasts
+
+### Output Files
+
+- `data/processed/merged_data.csv` - Combined dataset
+- `data/processed/demand_forecast.csv` - Forecast results
+- `data/processed/model_metrics.json` - Model performance metrics
+
+---
+
+## Future Improvements
+
+Possible extensions:
+- Add GDP/population as external features
+- Implement LSTM deep learning model
+- Add provincial/regional forecasts
+- Create scenario analysis (high/low growth)
+- Add weather data correlation
+- Deploy to Streamlit Cloud
+
+---
+
+## Citation
+
+Kareem, D. (2024). Pakistan Renewable Energy Pipeline. GitHub.
 
 ---
 
@@ -125,61 +252,13 @@ This project is for educational purposes. Data is from public sources.
 
 ---
 
-## Citations
+## Author
 
-### Primary Data Source
+**Saddam Hussain**
 
-```bibtex
-@misc{kareem2024,
-  author = {Kareem, Danish},
-  title = {Pakistan Renewable Energy Pipeline},
-  year = {2024},
-  publisher = {GitHub},
-  journal = {GitHub Repository},
-  howpublished = {\url{https://github.com/karemdanish/pakistan-energy-pipeline}}
-}
-```
-
-### This Project
-
-If you use this forecasting code, please cite:
-
-```bibtex
-@misc{author2025,
-  author = {[Your Name]},
-  title = {Pakistan Energy Demand Forecasting},
-  year = {2025},
-  publisher = {GitHub},
-  howpublished = {\url{https://github.com/[your-username]/pakistan-energy-demand-forecast}},
-  note = {Built upon Kareem, D. (2024) Pakistan Renewable Energy Pipeline}
-}
-```
+- GitHub: https://github.com/saddamchandio
+- Source Data: https://github.com/karemdanish/pakistan-energy-pipeline
 
 ---
 
-## Acknowledgments
-
-- **Kareem Danish** - Original [Pakistan Renewable Energy Pipeline](https://github.com/karemdanish/pakistan-energy-pipeline)
-- **Our World in Data** - Energy data
-- **Ember** - Electricity demand data
-- **IRENA** - Renewable capacity data
-- **World Bank** - Economic indicators
-
----
-
-## Future Work
-
-- Add more external features (weather, sector-wise demand)
-- Implement LSTM/Deep Learning models
-- Regional forecasting (provincial level)
-- Scenario analysis (high/low growth)
-
----
-
-## Contact
-
-For questions about this project, please refer to the project repository or contact the author.
-
----
-
-*This project builds upon the excellent work of Kareem Danish in creating the Pakistan Renewable Energy Pipeline. All forecast data originates from the original pipeline.*
+*This project builds upon the excellent work of Kareem Danish in creating the Pakistan Renewable Energy Pipeline.*
