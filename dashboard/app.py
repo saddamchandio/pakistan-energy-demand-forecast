@@ -164,8 +164,8 @@ def create_forecast_chart(hist_df, forecast_df, model_name, show_ci=True, scenar
     return fig
 
 
-def create_comparison_chart(hist_df, forecast_df):
-    """Create comparison chart for all models."""
+def create_comparison_chart(hist_df, forecast_df, scenario_name='Base'):
+    """Create comparison chart for all models with scenarios."""
     fig = go.Figure()
     
     fig.add_trace(go.Scatter(
@@ -205,6 +205,24 @@ def create_comparison_chart(hist_df, forecast_df):
             name='Ensemble',
             line=dict(color='#AB63FA', width=2, dash='dot'),
             marker=dict(size=6, symbol='triangle-up')
+        ))
+    
+    has_scenarios = 'demand_optimistic' in forecast_df.columns
+    
+    if has_scenarios and scenario_name == 'Optimistic':
+        fig.add_trace(go.Scatter(
+            x=forecast_df['year'], y=forecast_df['demand_optimistic'],
+            mode='lines+markers', name='Optimistic',
+            line=dict(color='#FF6699', width=2, dash='dash'),
+            marker=dict(size=6, symbol='star')
+        ))
+
+    if has_scenarios and scenario_name == 'Pessimistic':
+        fig.add_trace(go.Scatter(
+            x=forecast_df['year'], y=forecast_df['demand_pessimistic'],
+            mode='lines+markers', name='Pessimistic',
+            line=dict(color='#FF4444', width=2, dash='dash'),
+            marker=dict(size=6, symbol='star')
         ))
     
     fig.update_layout(
@@ -397,7 +415,7 @@ def main():
     
     if chart_type == "Comparison" and forecast_df is not None:
         st.subheader("Model Forecasts Comparison")
-        fig = create_comparison_chart(hist_df, forecast_df)
+        fig = create_comparison_chart(hist_df, forecast_df, scenario_choice)
         st.plotly_chart(fig, use_container_width=True)
         
         st.subheader("Forecast Data (2025-2030)")
