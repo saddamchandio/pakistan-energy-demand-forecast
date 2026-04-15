@@ -179,23 +179,40 @@ def create_comparison_chart(hist_df, forecast_df, scenario_name='Base'):
     
     has_scenarios = 'demand_optimistic' in forecast_df.columns
     
-    # Option 1: When specific scenario selected, hide other model lines
+    # Option 1: When specific scenario selected, show both Prophet and ARIMA with that scenario
     if has_scenarios and scenario_name in ['Optimistic', 'Pessimistic']:
         if scenario_name == 'Optimistic':
-            scenario_col = 'demand_optimistic'
+            prophet_scenario = 'demand_prophet_optimistic'
+            arima_scenario = 'demand_optimistic'
+            prophet_name = 'Prophet (Optimistic)'
+            arima_name = 'ARIMA (Optimistic)'
             color = '#FF6699'
         else:
-            scenario_col = 'demand_pessimistic'
+            prophet_scenario = 'demand_prophet_pessimistic'
+            arima_scenario = 'demand_pessimistic'
+            prophet_name = 'Prophet (Pessimistic)'
+            arima_name = 'ARIMA (Pessimistic)'
             color = '#FF4444'
         
-        fig.add_trace(go.Scatter(
-            x=forecast_df['year'],
-            y=forecast_df[scenario_col],
-            mode='lines+markers',
-            name=scenario_name,
-            line=dict(color=color, width=3, dash='solid'),
-            marker=dict(size=8, symbol='star')
-        ))
+        if prophet_scenario in forecast_df.columns:
+            fig.add_trace(go.Scatter(
+                x=forecast_df['year'],
+                y=forecast_df[prophet_scenario],
+                mode='lines+markers',
+                name=prophet_name,
+                line=dict(color=color, width=2, dash='dot'),
+                marker=dict(size=6, symbol='diamond')
+            ))
+        
+        if arima_scenario in forecast_df.columns:
+            fig.add_trace(go.Scatter(
+                x=forecast_df['year'],
+                y=forecast_df[arima_scenario],
+                mode='lines+markers',
+                name=arima_name,
+                line=dict(color=color, width=3, dash='solid'),
+                marker=dict(size=8, symbol='star')
+            ))
     else:
         # Show all models (existing behavior)
         if 'demand_prophet' in forecast_df.columns:

@@ -169,8 +169,16 @@ def generate_forecasts(results, demand_df):
         
         if 'demand_optimistic' in arima_vals.columns:
             combined['demand_optimistic'] = arima_vals['demand_optimistic'].iloc[:min_len].values
+            combined['demand_prophet_optimistic'] = (
+                combined['demand_prophet'] + 
+                (combined['demand_optimistic'] - combined['demand_arima'])
+            )
         if 'demand_pessimistic' in arima_vals.columns:
             combined['demand_pessimistic'] = arima_vals['demand_pessimistic'].iloc[:min_len].values
+            combined['demand_prophet_pessimistic'] = (
+                combined['demand_prophet'] + 
+                (combined['demand_pessimistic'] - combined['demand_arima'])
+            )
     elif arima_forecast is not None:
         combined = arima_forecast.copy()
         combined['demand_ensemble'] = combined['demand_twh']
