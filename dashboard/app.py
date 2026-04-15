@@ -21,32 +21,32 @@ st.set_page_config(
 
 @st.cache_data
 def load_historical_data():
-    """Load historical demand data."""
+    """Load historical demand data from CSV."""
     try:
-        from data_loader import load_demand_data
-        return load_demand_data(2000, 2024)
+        df = pd.read_csv("data/processed/merged_data.csv")
+        return df[['year', 'demand_twh']].copy()
     except Exception:
         return None
 
 
 @st.cache_data
 def load_forecast_data():
-    """Load forecast results."""
-    forecast_path = Path("data/processed/demand_forecast.csv")
-    if forecast_path.exists():
-        return pd.read_csv(forecast_path)
-    return None
+    """Load forecast results from CSV."""
+    try:
+        return pd.read_csv("data/processed/demand_forecast.csv")
+    except Exception:
+        return None
 
 
 @st.cache_data
 def load_metrics():
     """Load model metrics."""
     import json
-    metrics_path = Path("data/processed/model_metrics.json")
-    if metrics_path.exists():
-        with open(metrics_path) as f:
+    try:
+        with open("data/processed/model_metrics.json") as f:
             return json.load(f)
-    return None
+    except Exception:
+        return None
 
 
 def get_model_forecast(model_name: str):
