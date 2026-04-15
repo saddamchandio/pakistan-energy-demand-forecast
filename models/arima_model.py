@@ -127,12 +127,26 @@ def train_arima_model(
     
     forecast_df['demand_twh'] = forecast_demand
     
-    conf_int_values = conf_int.values
-    lower_adj = np.linspace(0, 20, forecast_periods)
-    upper_adj = np.linspace(0, 20, forecast_periods)
+    base_demand = forecast_demand[0]
+    scenarios = create_all_scenarios(df, base_demand)
     
-    forecast_df['lower_ci'] = [conf_int_values[0, 0] - lower_adj[i] for i in range(forecast_periods)]
-    forecast_df['upper_ci'] = [conf_int_values[-1, 1] + upper_adj[i] for i in range(forecast_periods)]
+    forecast_df['demand_optimistic'] = scenarios['optimistic']
+    forecast_df['demand_pessimistic'] = scenarios['pessimistic']
+    
+    conf_int_values = conf_int.values
+    
+    growth_rates = series.pct_change().dropna()
+    base_volatility = growth_rates.std()
+    
+    forecast_df['lower_ci'] = [
+        forecast_demand[i] - (base_volatility * forecast_demand[i] * (i + 1))
+        for i in range(forecast_periods)
+    ]
+    forecast_df['upper_ci'] = [
+        forecast_demand[i] + (base_volatility * forecast_demand[i] * (i + 1))
+        for i in range(forecast_periods)
+    ]
+    
     forecast_df['model'] = 'ARIMA'
     
     residuals = model_fit.resid
@@ -186,6 +200,68 @@ def generate_arima_forecast(
     result_df = result_df[result_df['year'] <= forecast_years]
     
     return result_df, metrics
+
+
+def create_growth_scenarios(
+    df: pd.DataFrame,
+    base_forecast: float,
+    scenario_type: str = 'base'
+) -> list:
+    """
+    Create demand forecasts using different growth scenarios.
+    Accounts for historical negative growth years.
+    
+    Args:
+        df: Training data
+        base_forecast: Base ARIMA forecast starting value
+        scenario_type: 'optimistic', 'base', or 'pessimistic'
+    
+    Returns:
+        List of forecast values for 2025-2030
+    """
+    series = df.set_index('year')['demand_twh']
+    
+    historical_growth_rates = series.pct_change().dropna()
+    
+    mean_growth = historical_growth_rates.mean()
+    positive_growth = historical_growth_rates[historical_growth_rates > 0].mean()
+    negative_growth = historical_growth_rates[historical_growth_rates < 0].mean()
+    
+    if scenario_type == 'optimistic':
+        growth_rate = max(positive_growth * 0.7, 0.05)
+    elif scenario_type == 'pessimistic':
+        growth_rate = min(negative_growth * 0.8, -0.01)
+    else:
+        growth_rate = mean_growth
+    
+    forecasts = []
+    current_demand = base_forecast
+    
+    for i in range(6):
+        current_demand = current_demand * (1 + growth_rate)
+        forecasts.append(current_demand)
+    
+    return forecasts
+
+
+def create_all_scenarios(df: pd.DataFrame, base_forecast: float) -> dict:
+    """
+    Create forecasts for all growth scenarios.
+    
+    Args:
+        df: Training data
+        base_forecast: Starting ARIMA forecast value
+    
+    Returns:
+        Dictionary with scenario forecasts
+    """
+    scenarios = {
+        'optimistic': create_growth_scenarios(df, base_forecast, 'optimistic'),
+        'base': create_growth_scenarios(df, base_forecast, 'base'),
+        'pessimistic': create_growth_scenarios(df, base_forecast, 'pessimistic')
+    }
+    
+    return scenarios
 
 
 def create_forecast_scenarios(

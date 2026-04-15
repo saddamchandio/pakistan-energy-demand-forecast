@@ -222,7 +222,7 @@ def calculate_cagr(start_value, end_value, years):
     return ((end_value / start_value) ** (1 / years) - 1) * 100
 
 
-def render_metrics_panel(hist_df, forecast_df, model_name):
+def render_metrics_panel(hist_df, forecast_df, model_name, scenario_name='Base'):
     """Render key metrics panel."""
     col1, col2, col3, col4 = st.columns(4)
     
@@ -249,9 +249,31 @@ def render_metrics_panel(hist_df, forecast_df, model_name):
             forecast_col = 'demand_ensemble'
         
         if forecast_col in forecast_df.columns:
-            demand_2030 = forecast_df[forecast_df['year'] == 2030][forecast_col].values
-            if len(demand_2030) > 0:
+            if 'Optimistic' in scenario_choice and 'demand_optimistic' in forecast_df.columns:
+                demand_2030 = forecast_df[forecast_df['year'] == 2030]['demand_optimistic'].values
+            elif 'Pessimistic' in scenario_choice and 'demand_pessimistic' in forecast_df.columns:
+                demand_2030 = forecast_df[forecast_df['year'] == 2030]['demand_pessimistic'].values
+            else:
+                demand_2030 = forecast_df[forecast_df['year'] == 2030][forecast_col].values
+            
+            if len(demand_2030) > 0 and demand_2030[0] > 0:
                 demand_2030 = demand_2030[0]
+                forecast_cagr = calculate_cagr(latest_demand, demand_2030, 6)
+                
+                col3.metric(
+                    f"Forecast 2030 ({scenario_choice})",
+                    f"{demand_2030:.2f} TWh",
+                    delta=f"{forecast_cagr:.2f}% CAGR"
+                )
+                
+                growth_rate = ((demand_2030 / latest_demand) - 1) * 100
+                col4.metric(
+                    "Total Growth (2024-2030)",
+                    f"{growth_rate:.1f}%",
+                    help="Projected growth from 2024 to 2030"
+                )
+            else:
+                demand_2030 = forecast_df[forecast_df['year'] == 2030][forecast_col].values[0]
                 forecast_cagr = calculate_cagr(latest_demand, demand_2030, 6)
                 
                 col3.metric(
@@ -344,13 +366,20 @@ def main():
             help="Display 95% confidence bands"
         )
         
+        scenario_choice = st.selectbox(
+            "Growth Scenario",
+            ["Base", "Optimistic", "Pessimistic"],
+            index=0,
+            help="Base uses average growth, Optimistic uses higher growth, Pessimistic accounts for negative growth years"
+        )
+        
         chart_type = st.radio(
             "Chart Type",
             ["Single Model", "Comparison"],
             help="View single model or compare all"
         )
     
-    render_metrics_panel(hist_df, forecast_df if forecast_df is not None else pd.DataFrame(), model_choice)
+    render_metrics_panel(hist_df, forecast_df if forecast_df is not None else pd.DataFrame(), model_choice, scenario_choice)
     
     st.markdown("---")
     

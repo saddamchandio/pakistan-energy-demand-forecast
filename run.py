@@ -129,7 +129,10 @@ def generate_forecasts(results, demand_df):
     print("\n[2/2] ARIMA forecast...")
     arima_forecast = results.get('ARIMA', {}).get('forecast')
     if arima_forecast is not None:
-        arima_forecast = arima_forecast[['year', 'demand_twh', 'lower_ci', 'upper_ci']].copy()
+        arima_cols = ['year', 'demand_twh', 'lower_ci', 'upper_ci']
+        if 'demand_optimistic' in arima_forecast.columns:
+            arima_cols.extend(['demand_optimistic', 'demand_pessimistic'])
+        arima_forecast = arima_forecast[arima_cols].copy()
         print(f"  [OK] Generated {len(arima_forecast)} year forecasts")
     
     combined = pd.DataFrame()
@@ -163,6 +166,11 @@ def generate_forecasts(results, demand_df):
             combined['prophet_upper'],
             combined['arima_upper']
         )
+        
+        if 'demand_optimistic' in arima_vals.columns:
+            combined['demand_optimistic'] = arima_vals['demand_optimistic'].iloc[:min_len].values
+        if 'demand_pessimistic' in arima_vals.columns:
+            combined['demand_pessimistic'] = arima_vals['demand_pessimistic'].iloc[:min_len].values
     elif arima_forecast is not None:
         combined = arima_forecast.copy()
         combined['demand_ensemble'] = combined['demand_twh']

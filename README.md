@@ -57,6 +57,23 @@ This project forecasts Pakistan's electricity demand for 2025-2030 using two mac
 - Average of Prophet and ARIMA predictions
 - More balanced and robust forecast
 
+### Growth Scenarios
+
+This project includes **scenario modeling** to account for historical negative growth years.
+
+| Scenario | Description | Growth Rate |
+|----------|-------------|------------|
+| **Optimistic** | Uses positive historical growth rates | ~6% |
+| **Base** | Uses average historical growth | ~4% |
+| **Pessimistic** | Accounts for negative growth years | ~-1% |
+
+Historical data shows 5 years with negative growth:
+- 2007: -3.36%
+- 2008: -3.23%
+- 2010: -1.61%
+- 2018: -1.08%
+- 2023: -2.26%
+
 ### How It Works
 
 ```
@@ -127,25 +144,25 @@ Then open http://localhost:8501
 
 ## Results
 
-### Forecast 2025-2030 (TWh)
+### Forecast 2025-2030 (TWh) - With Scenarios
 
-| Year | Prophet | ARIMA | Ensemble |
-|------|---------|------|----------|
-| 2025 | 172.04 | 180.88 | 176.46 |
-| 2026 | 175.75 | 180.88 | 178.32 |
-| 2027 | 179.69 | 180.88 | 180.28 |
-| 2028 | 187.77 | 180.88 | 184.32 |
-| 2029 | 191.27 | 180.88 | 186.07 |
-| 2030 | 194.99 | 180.88 | 187.93 |
+| Year | Optimistic | Base (ARIMA) | Pessimistic |
+|------|-----------|-------------|-------------|
+| 2025 | 196.16 | 186.82 | 183.37 |
+| 2026 | 205.97 | 192.76 | 179.99 |
+| 2027 | 216.26 | 198.70 | 176.67 |
+| 2028 | 227.08 | 204.64 | 173.41 |
+| 2029 | 238.43 | 210.58 | 170.21 |
+| 2030 | 250.35 | 216.52 | 167.07 |
 
 ### Key Metrics
 
 | Metric | Value |
 |--------|-------|
 | Latest Demand (2024) | 175.44 TWh |
-| Forecast 2030 (Ensemble) | 187.93 TWh |
-| Projected Growth | 7.1% |
-| Compound Annual Growth Rate | 1.3% |
+| Forecast 2030 (Optimistic) | 250.35 TWh |
+| Forecast 2030 (Base) | 216.52 TWh |
+| Forecast 2030 (Pessimistic) | 167.07 TWh |
 
 ### Model Performance
 
