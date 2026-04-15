@@ -222,7 +222,10 @@ def calculate_cagr(start_value, end_value, years):
     return ((end_value / start_value) ** (1 / years) - 1) * 100
 
 
-def render_metrics_panel(hist_df, forecast_df, model_name, scenario_name='Base'):
+def render_metrics_panel(hist_df, forecast_df, model_name, scenario_name=None):
+    """Render metrics panel with fallback for missing parameters."""
+    if scenario_name is None:
+        scenario_name = 'Base'
     """Render key metrics panel."""
     col1, col2, col3, col4 = st.columns(4)
     
@@ -249,9 +252,11 @@ def render_metrics_panel(hist_df, forecast_df, model_name, scenario_name='Base')
             forecast_col = 'demand_ensemble'
         
         if forecast_col in forecast_df.columns:
-            if 'Optimistic' in scenario_choice and 'demand_optimistic' in forecast_df.columns:
+            has_scenarios = 'demand_optimistic' in forecast_df.columns
+            
+            if has_scenarios and scenario_name == 'Optimistic':
                 demand_2030 = forecast_df[forecast_df['year'] == 2030]['demand_optimistic'].values
-            elif 'Pessimistic' in scenario_choice and 'demand_pessimistic' in forecast_df.columns:
+            elif has_scenarios and scenario_name == 'Pessimistic':
                 demand_2030 = forecast_df[forecast_df['year'] == 2030]['demand_pessimistic'].values
             else:
                 demand_2030 = forecast_df[forecast_df['year'] == 2030][forecast_col].values
@@ -261,7 +266,7 @@ def render_metrics_panel(hist_df, forecast_df, model_name, scenario_name='Base')
                 forecast_cagr = calculate_cagr(latest_demand, demand_2030, 6)
                 
                 col3.metric(
-                    f"Forecast 2030 ({scenario_choice})",
+                    f"Forecast 2030 ({scenario_name})",
                     f"{demand_2030:.2f} TWh",
                     delta=f"{forecast_cagr:.2f}% CAGR"
                 )
