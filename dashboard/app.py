@@ -177,53 +177,56 @@ def create_comparison_chart(hist_df, forecast_df, scenario_name='Base'):
         marker=dict(size=8)
     ))
     
-    if 'demand_prophet' in forecast_df.columns:
-        fig.add_trace(go.Scatter(
-            x=forecast_df['year'],
-            y=forecast_df['demand_prophet'],
-            mode='lines+markers',
-            name='Prophet',
-            line=dict(color='#FFA15A', width=2, dash='dot'),
-            marker=dict(size=6, symbol='diamond')
-        ))
-    
-    if 'demand_arima' in forecast_df.columns:
-        fig.add_trace(go.Scatter(
-            x=forecast_df['year'],
-            y=forecast_df['demand_arima'],
-            mode='lines+markers',
-            name='ARIMA',
-            line=dict(color='#19B3FF', width=2, dash='dot'),
-            marker=dict(size=6, symbol='square')
-        ))
-    
-    if 'demand_ensemble' in forecast_df.columns:
-        fig.add_trace(go.Scatter(
-            x=forecast_df['year'],
-            y=forecast_df['demand_ensemble'],
-            mode='lines+markers',
-            name='Ensemble',
-            line=dict(color='#AB63FA', width=2, dash='dot'),
-            marker=dict(size=6, symbol='triangle-up')
-        ))
-    
     has_scenarios = 'demand_optimistic' in forecast_df.columns
     
-    if has_scenarios and scenario_name == 'Optimistic':
+    # Option 1: When specific scenario selected, hide other model lines
+    if has_scenarios and scenario_name in ['Optimistic', 'Pessimistic']:
+        if scenario_name == 'Optimistic':
+            scenario_col = 'demand_optimistic'
+            color = '#FF6699'
+        else:
+            scenario_col = 'demand_pessimistic'
+            color = '#FF4444'
+        
         fig.add_trace(go.Scatter(
-            x=forecast_df['year'], y=forecast_df['demand_optimistic'],
-            mode='lines+markers', name='Optimistic',
-            line=dict(color='#FF6699', width=2, dash='dash'),
-            marker=dict(size=6, symbol='star')
+            x=forecast_df['year'],
+            y=forecast_df[scenario_col],
+            mode='lines+markers',
+            name=scenario_name,
+            line=dict(color=color, width=3, dash='solid'),
+            marker=dict(size=8, symbol='star')
         ))
-
-    if has_scenarios and scenario_name == 'Pessimistic':
-        fig.add_trace(go.Scatter(
-            x=forecast_df['year'], y=forecast_df['demand_pessimistic'],
-            mode='lines+markers', name='Pessimistic',
-            line=dict(color='#FF4444', width=2, dash='dash'),
-            marker=dict(size=6, symbol='star')
-        ))
+    else:
+        # Show all models (existing behavior)
+        if 'demand_prophet' in forecast_df.columns:
+            fig.add_trace(go.Scatter(
+                x=forecast_df['year'],
+                y=forecast_df['demand_prophet'],
+                mode='lines+markers',
+                name='Prophet',
+                line=dict(color='#FFA15A', width=2, dash='dot'),
+                marker=dict(size=6, symbol='diamond')
+            ))
+        
+        if 'demand_arima' in forecast_df.columns:
+            fig.add_trace(go.Scatter(
+                x=forecast_df['year'],
+                y=forecast_df['demand_arima'],
+                mode='lines+markers',
+                name='ARIMA',
+                line=dict(color='#19B3FF', width=2, dash='dot'),
+                marker=dict(size=6, symbol='square')
+            ))
+        
+        if 'demand_ensemble' in forecast_df.columns:
+            fig.add_trace(go.Scatter(
+                x=forecast_df['year'],
+                y=forecast_df['demand_ensemble'],
+                mode='lines+markers',
+                name='Ensemble',
+                line=dict(color='#AB63FA', width=2, dash='dot'),
+                marker=dict(size=6, symbol='triangle-up')
+            ))
     
     fig.update_layout(
         title={
