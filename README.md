@@ -2,7 +2,10 @@
 
 Machine learning project to forecast Pakistan's electricity demand for 2025-2030 using time series analysis.
 
+**Live Dashboard:** https://pakistan-energy-demand-forecast-jelw2vd7jwuj8agqgoyhqv.streamlit.app/
+
 **Built by:** Saddam Hussain   
+**Repository:** https://github.com/saddamchandio/pakistan-energy-demand-forecast   
 **Source Data:** https://github.com/karemdanish/pakistan-energy-pipeline
 
 ---
