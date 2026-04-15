@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-16T00:15:10.796071",
+  "generated_at": "2026-04-16T00:38:38.357666",
   "data_summary": {
     "training_years": "2000-2024",
     "n_observations": 25,
@@ -10,9 +10,9 @@
   "model_metrics": {
     "Prophet": {
       "model": "Prophet",
-      "mae": 9.23,
-      "rmse": 10.19,
-      "mape": 7.95,
+      "mae": 2.73,
+      "rmse": 3.71,
+      "mape": 2.21,
       "training_years": 20,
       "growth_type": "linear",
       "has_gdp_regressor": true
