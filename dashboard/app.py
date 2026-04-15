@@ -99,8 +99,8 @@ def create_historical_chart(df):
     return fig
 
 
-def create_forecast_chart(hist_df, forecast_df, model_name, show_ci=True):
-    """Create forecast chart with confidence intervals."""
+def create_forecast_chart(hist_df, forecast_df, model_name, show_ci=True, scenario_name='Base'):
+    """Create forecast chart with confidence intervals and scenario lines."""
     fig = go.Figure()
     
     fig.add_trace(go.Scatter(
@@ -121,6 +121,13 @@ def create_forecast_chart(hist_df, forecast_df, model_name, show_ci=True):
         lower_col = 'lower_ci'
         upper_col = 'upper_ci'
         model_name = 'Ensemble'
+    
+    has_scenarios = 'demand_optimistic' in forecast_df.columns
+    
+    if has_scenarios and scenario_name == 'Optimistic':
+        forecast_col = 'demand_optimistic'
+    elif has_scenarios and scenario_name == 'Pessimistic':
+        forecast_col = 'demand_pessimistic'
     
     fig.add_trace(go.Scatter(
         x=forecast_df['year'],
@@ -422,7 +429,7 @@ def main():
         st.subheader(f"Demand Forecast ({model_choice})")
         
         if forecast_df is not None:
-            fig = create_forecast_chart(hist_df, forecast_df, model_choice, show_ci)
+            fig = create_forecast_chart(hist_df, forecast_df, model_choice, show_ci, scenario_choice)
             st.plotly_chart(fig, use_container_width=True)
             
             st.subheader("Forecast Data (2025-2030)")
